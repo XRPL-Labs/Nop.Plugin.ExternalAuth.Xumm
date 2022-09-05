@@ -1,0 +1,18 @@
+﻿.xumm-login-block {
+    margin-top: 20px;
+}
+
+    .xumm-login-block .buttons {
+        text-align: center;
+    }
+
+.xumm-btn {
+    display: inline-block;
+    width: 287.5px;
+    height: 50px;
+    background-image: url('Images/signin.svg');
+    -ms-background-repeat: no-repeat;
+    background-repeat: no-repeat;
+    -ms-background-size: 287.5px 50px;
+    background-size: 287.5px 50px;
+}

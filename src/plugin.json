@@ -1,0 +1,11 @@
+﻿{
+  "Group": "ExternalAuth methods",
+  "FriendlyName": "Xumm authentication",
+  "SystemName": "ExternalAuth.Xumm",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.50" ],
+  "Author": "Dominique Blomsma",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.ExternalAuth.Xumm.dll",
+  "Description": "This plugin enables Xumm authentication (login using Xumm account)"
+}

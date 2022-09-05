@@ -1,0 +1,16 @@
+﻿@model Nop.Plugin.ExternalAuth.Xumm.Models.PublicInfoModel
+
+@{
+    Layout = ""; 
+}
+
+@if (Model.IsConfigured)
+{
+    <link rel="stylesheet" href="~/Plugins/ExternalAuth.Xumm/Content/xummstyles.css"/>
+
+    <div class="xumm-login-block">
+        <div class="buttons">
+            <a asp-controller="XummAuthentication" asp-action="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" class="xumm-btn" title="@T("Plugins.ExternalAuth.Xumm.PublicInfo.SignInWithXumm").Text"></a>
+        </div>
+    </div>
+}
