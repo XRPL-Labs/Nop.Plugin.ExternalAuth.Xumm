@@ -4,7 +4,8 @@
 1. [Sign up](https://apps.xumm.dev/) for a Xumm Developer account, if you don't already have one.
 2. Install the plugin in nopCommerce.
 3. Configure the API Credentials and make sure the Redirect URL is set.
-4. You're all set to use Xumm for external authentication.
+4. Request static email addresses.
+5. You're all set to use Xumm for external authentication.
 
 # Instructions
 
@@ -36,7 +37,14 @@ First you need to configure the API Key and Secret found of the Application cred
 #### Redirect URL
 Update the Redirect URI's list at the Application details section of the [Developer Dashboard](https://apps.xumm.dev/) with the Redirect URL shown at the plugin configuration page.
 
-## Step 4: Validate Xumm authentication Configuration
+## Step 4: Static Email addresses
+After a successful sign in the email address returned by the Xumm OAuth2 platform will allow emails to be received for 10 minutes after the successful login.
+An email delivered to the unique email address for the specific Xumm App + user (r-address) will be stripped, and served plain text to the end user. The end user will receive a [push notification](https://legyp4b.dlvr.cloud/1.PNG) and [event](https://jabvmxa.dlvr.cloud/pasted_1.png) in Xumm serving the email. (Links, images, attachments, etc. **will be stripped out**).
+
+The user won't be able to login a second time after the email has changed so we need to enable static email addresses for your Xumm Application(s).
+Please send an email to dominique@xrpl-labs.com with the request to enable static email addresses including the API Key's used with this plugin.
+
+## Step 5: Validate Xumm authentication 
 The [API Key](#api-credentials), [API Secret](#api-credentials) and [Webhook URL](#redirect-url) has to be configured as required. 
 
 The Xumm authentication method will not be visible at the login page for consumers if not configured correctly.
