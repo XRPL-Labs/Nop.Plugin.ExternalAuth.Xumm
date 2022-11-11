@@ -8,6 +8,10 @@ namespace Nop.Plugin.ExternalAuth.Xumm.Models;
 /// </summary>
 public record ConfigurationModel : BaseNopModel
 {
+    #region Properties
+
+    public int ActiveStoreScopeConfiguration { get; set; }
+
     /// <summary>
     /// Gets or sets an API Key
     /// </summary>
@@ -28,5 +32,9 @@ public record ConfigurationModel : BaseNopModel
 
     public bool ValidApiCredentials { get; set; }
 
+    public bool ApiCredentialsProvided => !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(ApiSecret);
+
     public bool HasRedirectUrlConfigured { get; set; }
+
+    #endregion
 }

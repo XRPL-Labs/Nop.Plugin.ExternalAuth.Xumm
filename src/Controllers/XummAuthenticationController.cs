@@ -1,4 +1,7 @@
-﻿using AspNet.Security.OAuth.Xumm;
+﻿using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AspNet.Security.OAuth.Xumm;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -13,9 +16,6 @@ using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Nop.Plugin.ExternalAuth.Xumm.Controllers;
 
@@ -34,7 +34,6 @@ public class XummAuthenticationController : BasePluginController
     private readonly IStoreContext _storeContext;
     private readonly IWorkContext _workContext;
     private readonly IXummService _xummService;
-    private readonly XummExternalAuthenticationSettings _xummExternalAuthSettings;
 
     #endregion
 
@@ -50,8 +49,7 @@ public class XummAuthenticationController : BasePluginController
         ISettingService settingService,
         IStoreContext storeContext,
         IWorkContext workContext,
-        IXummService xummService,
-        XummExternalAuthenticationSettings xummExternalAuthSettings)
+        IXummService xummService)
     {
         _authenticationPluginManager = authenticationPluginManager;
         _externalAuthenticationService = externalAuthenticationService;
@@ -63,7 +61,6 @@ public class XummAuthenticationController : BasePluginController
         _storeContext = storeContext;
         _workContext = workContext;
         _xummService = xummService;
-        _xummExternalAuthSettings = xummExternalAuthSettings;
     }
 
     #endregion
@@ -77,15 +74,20 @@ public class XummAuthenticationController : BasePluginController
         if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageExternalAuthenticationMethods))
             return AccessDeniedView();
 
-        var pong = await _xummService.GetPongAsync();
+        // Load settings for a chosen store scope
+        var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+        var settings = await _settingService.LoadSettingAsync<XummExternalAuthenticationSettings>(storeScope);
+
+        var pong = await _xummService.GetPongAsync(storeScope);
 
         var model = new ConfigurationModel
         {
-            ApiKey = _xummExternalAuthSettings.ApiKey,
-            ApiSecret = _xummExternalAuthSettings.ApiSecret,
-            RedirectUrl = _xummService.RedirectUrl,
+            ActiveStoreScopeConfiguration = storeScope,
+            ApiKey = settings.ApiKey,
+            ApiSecret = settings.ApiSecret,
+            RedirectUrl = await _xummService.GetRedirectUrlAsync(storeScope),
             ValidApiCredentials = pong?.Pong ?? false,
-            HasRedirectUrlConfigured = _xummService.HasRedirectUrlConfigured(pong)
+            HasRedirectUrlConfigured = await _xummService.HasRedirectUrlConfiguredAsync(storeScope, pong)
         };
 
         return View("~/Plugins/ExternalAuth.Xumm/Views/Configure.cshtml", model);
@@ -102,12 +104,17 @@ public class XummAuthenticationController : BasePluginController
         if (!ModelState.IsValid)
             return await Configure();
 
-        var changed = model.ApiKey != _xummExternalAuthSettings.ApiKey || model.ApiSecret != _xummExternalAuthSettings.ApiSecret;
+        // Load settings for a chosen store scope
+        var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+        var settings = await _settingService.LoadSettingAsync<XummExternalAuthenticationSettings>(storeScope);
+
+        var changed = model.ApiKey != settings.ApiKey || model.ApiSecret != settings.ApiSecret;
         if (changed)
         {
-            _xummExternalAuthSettings.ApiKey = model.ApiKey;
-            _xummExternalAuthSettings.ApiSecret = model.ApiSecret;
-            await _settingService.SaveSettingAsync(_xummExternalAuthSettings);
+            settings.ApiKey = model.ApiKey;
+            settings.ApiSecret = model.ApiSecret;
+
+            await _settingService.SaveSettingAsync(settings);
 
             // Clear Xumm Authentication options cache
             _optionsCache.TryRemove(XummAuthenticationDefaults.AuthenticationScheme);
@@ -128,8 +135,8 @@ public class XummAuthenticationController : BasePluginController
             throw new NopException("Xumm Authentication module cannot be loaded");
         }
 
-        if (string.IsNullOrEmpty(_xummExternalAuthSettings.ApiKey) ||
-            string.IsNullOrEmpty(_xummExternalAuthSettings.ApiSecret))
+        var settings = await _settingService.LoadSettingAsync<XummExternalAuthenticationSettings>(store.Id);
+        if (string.IsNullOrEmpty(settings.ApiKey) || string.IsNullOrEmpty(settings.ApiSecret))
         {
             throw new NopException("Xumm Authentication module not configured");
         }
@@ -149,7 +156,7 @@ public class XummAuthenticationController : BasePluginController
         var authenticateResult = await HttpContext.AuthenticateAsync(XummAuthenticationDefaults.AuthenticationScheme);
         if (!authenticateResult.Succeeded || !authenticateResult.Principal.Claims.Any())
         {
-            return RedirectToRoute("Login");
+            return RedirectToRoute("Login", new { returnUrl = returnUrl });
         }
 
         var authenticationParameters = new ExternalAuthenticationParameters

@@ -52,13 +52,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+	  <ProjectReference Include="..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
     <ClearPluginAssemblies Include="$(MSBuildProjectDirectory)\..\..\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 
   <ItemGroup>
 	  <PackageReference Include="AspNet.Security.OAuth.Xumm" Version="6.0.11" />
-	  <PackageReference Include="XUMM.NET.SDK" Version="1.6.7" />
+	  <PackageReference Include="XUMM.NET.SDK" Version="1.7.1" />
   </ItemGroup>
 
   <!-- This target execute after "Build" target -->

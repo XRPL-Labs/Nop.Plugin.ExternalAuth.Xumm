@@ -1,10 +1,10 @@
-﻿using Nop.Core;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Nop.Core;
 using Nop.Services.Authentication.External;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Plugins;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Nop.Plugin.ExternalAuth.Xumm;
 
