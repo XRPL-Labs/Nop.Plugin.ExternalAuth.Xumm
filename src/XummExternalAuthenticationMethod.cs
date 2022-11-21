@@ -73,7 +73,7 @@ public class XummExternalAuthenticationMethod : BasePlugin, IExternalAuthenticat
                         <br />
                         1. You will need a Xumm Developer account. If you don't already have one, you can sign up here: <a href=""https://apps.xumm.dev/"" target=""_blank"">https://apps.xumm.dev/</a><br />
                         2. Sign in to 'Xumm Developer Dashboard'. Go to 'Settings' tab, copy 'API Key', 'API Secret' and paste it into the same fields below.<br />
-                        3. Update the Redirect URI's with URL <em>{0}</em> on the 'Application details' section of 'Settings'.<br />
+                        3. Update the Redirect URI's with URI's <em>{0}</em> on the 'Application details' section of 'Settings'.<br />
                     </div>",
             ["Plugins.ExternalAuth.Xumm.Button.ShowHideSecrets"] = "Show/Hide Secrets",
             ["Plugins.ExternalAuth.Xumm.Fields.ApiKey"] = "API Key",
@@ -84,9 +84,8 @@ public class XummExternalAuthenticationMethod : BasePlugin, IExternalAuthenticat
             ["Plugins.ExternalAuth.Xumm.Fields.ApiSecret.Hint"] = "Enter the API Secret for the live environment.",
             ["Plugins.ExternalAuth.Xumm.Fields.ApiSecret.Required"] = "API Secret is required",
             ["Plugins.ExternalAuth.Xumm.Fields.ApiSecret.Invalid"] = "API Secret format is invalid",
-            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUrl"] = "Redirect URL",
-            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUrl.Hint"] = "Update the redirect URI's with URL at the 'Application details' section of 'Settings' in the Xumm Developer Dashboard.",
-            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUrl.NotConfigured"] = "Redirect URL has not been configured in the Xumm Developer Dashboard.",
+            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris"] = "Redirect URI's",
+            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris.Hint"] = "Update the redirect URI's with URI's at the 'Application details' section of 'Settings' in the Xumm Developer Dashboard.",
             ["Plugins.ExternalAuth.Xumm.PublicInfo.SignInWithXumm"] = "Sign In with Xumm"
         });
 

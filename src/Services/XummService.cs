@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Xumm;
+using Nop.Core.Domain.Stores;
 using Nop.Services.Configuration;
 using Nop.Services.Logging;
 using Nop.Services.Stores;
@@ -48,7 +50,7 @@ public class XummService : IXummService
         return new XummSdk(settings.ApiKey, settings.ApiSecret);
     }
 
-    public async Task<XummPong> GetPongAsync(int storeId)
+    public async Task<XummPong> GetPongAsync(int storeId = 0)
     {
         try
         {
@@ -67,24 +69,37 @@ public class XummService : IXummService
         return pong?.Auth.Application.RedirectUris.Any(s => s.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false;
     }
 
-    public async Task<string> GetRedirectUrlAsync(int storeId)
+    public async Task<Dictionary<string, bool>> GetRedirectUrlAndConfiguredStatesAsync(XummPong pong)
     {
-        var storeLocation = await GetStoreLocation(storeId);
-        return $"{storeLocation}{XummAuthenticationDefaults.CallbackPath.TrimStart('/')}";
+        var result = new Dictionary<string, bool>();
+        var stores = await _storeService.GetAllStoresAsync();
+        foreach (var store in stores)
+        {
+            var redirectUrl = GetStoreRedirectUrl(store);
+            var configured = pong?.Auth.Application.RedirectUris.Any(s => s.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false;
+            result.Add(redirectUrl, configured);
+        }
+
+        return result;
     }
 
-    private async Task<string> GetStoreLocation(int storeId)
+    public async Task<string> GetRedirectUrlAsync(int storeId)
     {
         var store = storeId > 0
             ? await _storeService.GetStoreByIdAsync(storeId)
             : (await _storeService.GetAllStoresAsync()).FirstOrDefault();
 
-        var storeLocation = store?.Url ?? throw new Exception($"Store {storeId} cannot be loaded");
+        return GetStoreRedirectUrl(store);
+    }
+
+    private string GetStoreRedirectUrl(Store store)
+    {
+        var storeLocation = store?.Url ?? throw new Exception($"Store {store?.Id} has no URL configured");
 
         //ensure that URL is ended with slash
         storeLocation = $"{storeLocation.TrimEnd('/')}/";
 
-        return storeLocation;
+        return $"{storeLocation}{XummAuthenticationDefaults.CallbackPath.TrimStart('/')}";
     }
 
     #endregion

@@ -1,4 +1,5 @@
-﻿using Nop.Web.Framework.Models;
+﻿using System.Collections.Generic;
+using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
 
 namespace Nop.Plugin.ExternalAuth.Xumm.Models;
@@ -9,8 +10,6 @@ namespace Nop.Plugin.ExternalAuth.Xumm.Models;
 public record ConfigurationModel : BaseNopModel
 {
     #region Properties
-
-    public int ActiveStoreScopeConfiguration { get; set; }
 
     /// <summary>
     /// Gets or sets an API Key
@@ -27,8 +26,8 @@ public record ConfigurationModel : BaseNopModel
     /// <summary>
     /// Gets or sets a Redirect URL
     /// </summary>
-    [NopResourceDisplayName("Plugins.ExternalAuth.Xumm.Fields.RedirectUrl")]
-    public string RedirectUrl { get; set; }
+    [NopResourceDisplayName("Plugins.ExternalAuth.Xumm.Fields.RedirectUris")]
+    public Dictionary<string, bool> RedirectUris { get; set; } = new();
 
     public bool ValidApiCredentials { get; set; }
 

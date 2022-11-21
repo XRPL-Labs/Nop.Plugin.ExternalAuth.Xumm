@@ -5,8 +5,8 @@
 }
 
 <script>
-    $(document).ready(function() {
-        $("#btnShowHideSecrets").on('click', function(event) {
+    $(document).ready(function () {
+        $("#btnShowHideSecrets").on('click', function (event) {
             event.preventDefault();
             if ($('#liveApiKey input').attr("type") === "text") {
                 $('#liveApiKey input').attr('type', 'password');
@@ -18,7 +18,6 @@
         });
     });
 </script>
-@await Component.InvokeAsync("StoreScopeConfiguration")
 
 <form asp-controller="XummAuthentication" asp-action="Configure" method="post">
     <section class="content">
@@ -26,7 +25,7 @@
             <div class="card card-default">
                 <h5 class="card-header">@Html.Raw(T("Plugins.ExternalAuth.Xumm.Section.ApiSettings").Text)</h5>
                 <div class="card-body">
-                    @Html.Raw(string.Format(T("Plugins.ExternalAuth.Xumm.Section.ApiSettings.Instructions").Text, Model.RedirectUrl))
+                    @Html.Raw(string.Format(T("Plugins.ExternalAuth.Xumm.Section.ApiSettings.Instructions").Text, string.Join(", ", Model.RedirectUris.Keys)))
                     <div class="form-group row">
                         <div class="col-md-3">
                             <nop-label asp-for="ApiKey" />
@@ -49,17 +48,23 @@
                     {
                         <div class="form-group row" id="liveRedirectUrl">
                             <div class="col-md-3">
-                                <nop-label asp-for="RedirectUrl"/>
+                                <nop-label asp-for="RedirectUris" />
                             </div>
                             <div class="col-md-6">
-                                <nop-editor asp-for="RedirectUrl" asp-required="true" html-attributes="@(new { @class = Model.HasRedirectUrlConfigured ? "form-control" : "form-control is-invalid", disabled = "disabled" })" asp-render-form-control-class="false"/>
+                                @foreach (var redirectUrl in Model.RedirectUris)
+                                {
+                                    <div class="input-group input-group-required">
+                                        <input class="form-control text-box single-line @(!redirectUrl.Value ? "is-invalid": "")" disabled="disabled" type="text" value="@redirectUrl.Key">
+                                        <div class="input-group-btn"><span class="required">*</span></div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
                     <div class="form-group row">
                         <div class="col-md-6 offset-md-3">
-                            <input type="submit" name="save" class="btn btn-primary" value="@T("Admin.Common.Save")"/>
-                            <input id="btnShowHideSecrets" type="button" class="btn btn-secondary" value="@T("Plugins.ExternalAuth.Xumm.Button.ShowHideSecrets")"/>
+                            <input type="submit" name="save" class="btn btn-primary" value="@T("Admin.Common.Save")" />
+                            <input id="btnShowHideSecrets" type="button" class="btn btn-secondary" value="@T("Plugins.ExternalAuth.Xumm.Button.ShowHideSecrets")" />
                         </div>
                     </div>
                 </div>
