@@ -2,7 +2,7 @@
   "Group": "ExternalAuth methods",
   "FriendlyName": "Xumm authentication",
   "SystemName": "ExternalAuth.Xumm",
-  "Version": "1.0",
+  "Version": "1.1",
   "SupportedVersions": [ "4.50" ],
   "Author": "Dominique Blomsma",
   "DisplayOrder": 1,
