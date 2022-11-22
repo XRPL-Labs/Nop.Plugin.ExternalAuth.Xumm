@@ -28,12 +28,12 @@ public class XummAuthenticationController : BasePluginController
     private readonly IExternalAuthenticationService _externalAuthenticationService;
     private readonly ILocalizationService _localizationService;
     private readonly INotificationService _notificationService;
-    private readonly IOptionsMonitorCache<XummAuthenticationOptions> _optionsCache;
     private readonly IPermissionService _permissionService;
     private readonly ISettingService _settingService;
     private readonly IStoreContext _storeContext;
     private readonly IWorkContext _workContext;
     private readonly IXummService _xummService;
+    private readonly IOptionsMonitorCache<XummAuthenticationOptions> _optionsCache;
     private readonly XummExternalAuthenticationSettings _settings;
 
     #endregion
@@ -45,24 +45,24 @@ public class XummAuthenticationController : BasePluginController
         IExternalAuthenticationService externalAuthenticationService,
         ILocalizationService localizationService,
         INotificationService notificationService,
-        IOptionsMonitorCache<XummAuthenticationOptions> optionsCache,
         IPermissionService permissionService,
         ISettingService settingService,
         IStoreContext storeContext,
         IWorkContext workContext,
-        IXummService xummService, 
+        IXummService xummService,
+        IOptionsMonitorCache<XummAuthenticationOptions> optionsCache,
         XummExternalAuthenticationSettings settings)
     {
         _authenticationPluginManager = authenticationPluginManager;
         _externalAuthenticationService = externalAuthenticationService;
         _localizationService = localizationService;
         _notificationService = notificationService;
-        _optionsCache = optionsCache;
         _permissionService = permissionService;
         _settingService = settingService;
         _storeContext = storeContext;
         _workContext = workContext;
         _xummService = xummService;
+        _optionsCache = optionsCache;
         _settings = settings;
     }
 
@@ -77,14 +77,12 @@ public class XummAuthenticationController : BasePluginController
         if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageExternalAuthenticationMethods))
             return AccessDeniedView();
 
-        // Load settings for a chosen store scope
         var pong = await _xummService.GetPongAsync();
-
         var model = new ConfigurationModel
         {
             ApiKey = _settings.ApiKey,
             ApiSecret = _settings.ApiSecret,
-            RedirectUris = await _xummService.GetRedirectUrlAndConfiguredStatesAsync(pong),
+            RedirectUris = await _xummService.GetStoreRedirectUrisAsync(pong),
             ValidApiCredentials = pong?.Pong ?? false
         };
 
@@ -102,9 +100,7 @@ public class XummAuthenticationController : BasePluginController
         if (!ModelState.IsValid)
             return await Configure();
 
-        // Load settings for a chosen store scope
-        var changed = model.ApiKey != _settings.ApiKey || model.ApiSecret != _settings.ApiSecret;
-        if (changed)
+        if (model.ApiKey != _settings.ApiKey || model.ApiSecret != _settings.ApiSecret)
         {
             _settings.ApiKey = model.ApiKey;
             _settings.ApiSecret = model.ApiSecret;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Xumm;
 using Nop.Core.Domain.Stores;
+using Nop.Plugin.ExternalAuth.Xumm.Models;
 using Nop.Services.Configuration;
 using Nop.Services.Logging;
 using Nop.Services.Stores;
@@ -69,15 +70,21 @@ public class XummService : IXummService
         return pong?.Auth.Application.RedirectUris.Any(s => s.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false;
     }
 
-    public async Task<Dictionary<string, bool>> GetRedirectUrlAndConfiguredStatesAsync(XummPong pong)
+    public async Task<List<StoreRedirectUriModel>> GetStoreRedirectUrisAsync(XummPong pong)
     {
-        var result = new Dictionary<string, bool>();
+        var result = new List<StoreRedirectUriModel>();
         var stores = await _storeService.GetAllStoresAsync();
         foreach (var store in stores)
         {
             var redirectUrl = GetStoreRedirectUrl(store);
-            var configured = pong?.Auth.Application.RedirectUris.Any(s => s.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-            result.Add(redirectUrl, configured);
+            var model = new StoreRedirectUriModel
+            {
+                StoreName = store.Name,
+                RedirectUri = redirectUrl,
+                Configured = pong?.Auth.Application.RedirectUris.Any(s => s.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false
+            };
+
+            result.Add(model);
         }
 
         return result;

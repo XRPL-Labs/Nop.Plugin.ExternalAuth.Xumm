@@ -25,7 +25,7 @@
             <div class="card card-default">
                 <h5 class="card-header">@Html.Raw(T("Plugins.ExternalAuth.Xumm.Section.ApiSettings").Text)</h5>
                 <div class="card-body">
-                    @Html.Raw(string.Format(T("Plugins.ExternalAuth.Xumm.Section.ApiSettings.Instructions").Text, string.Join(", ", Model.RedirectUris.Keys)))
+                    @Html.Raw(T("Plugins.ExternalAuth.Xumm.Section.ApiSettings.Instructions").Text)
                     <div class="form-group row">
                         <div class="col-md-3">
                             <nop-label asp-for="ApiKey" />
@@ -51,13 +51,25 @@
                                 <nop-label asp-for="RedirectUris" />
                             </div>
                             <div class="col-md-6">
-                                @foreach (var redirectUrl in Model.RedirectUris)
-                                {
-                                    <div class="input-group input-group-required">
-                                        <input class="form-control text-box single-line @(!redirectUrl.Value ? "is-invalid": "")" disabled="disabled" type="text" value="@redirectUrl.Key">
-                                        <div class="input-group-btn"><span class="required">*</span></div>
-                                    </div>
-                                }
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>@Html.Raw(T("Plugins.ExternalAuth.Xumm.Fields.RedirectUris.StoreName").Text)</th>
+                                            <th>@Html.Raw(T("Plugins.ExternalAuth.Xumm.Fields.RedirectUris.RedirectUri").Text)</th>
+                                            <th>@Html.Raw(T("Plugins.ExternalAuth.Xumm.Fields.RedirectUris.Configured").Text)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var redirectUrl in Model.RedirectUris)
+                                        {
+                                            <tr class="@(!redirectUrl.Configured ? "table-danger" : "")">
+                                                <td>@redirectUrl.StoreName</td>
+                                                <td>@redirectUrl.RedirectUri</td>
+                                                <td>@(redirectUrl.Configured ? "Yes" : "No")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     }

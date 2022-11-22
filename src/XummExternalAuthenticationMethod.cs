@@ -73,7 +73,7 @@ public class XummExternalAuthenticationMethod : BasePlugin, IExternalAuthenticat
                         <br />
                         1. You will need a Xumm Developer account. If you don't already have one, you can sign up here: <a href=""https://apps.xumm.dev/"" target=""_blank"">https://apps.xumm.dev/</a><br />
                         2. Sign in to 'Xumm Developer Dashboard'. Go to 'Settings' tab, copy 'API Key', 'API Secret' and paste it into the same fields below.<br />
-                        3. Update the Redirect URI's with URI's <em>{0}</em> on the 'Application details' section of 'Settings'.<br />
+                        3. Enable Xumm authentication per store by adding the redirect URI at the 'Origin/Redirect URIs' list in the 'Application details' section of 'Settings'.<br />
                     </div>",
             ["Plugins.ExternalAuth.Xumm.Button.ShowHideSecrets"] = "Show/Hide Secrets",
             ["Plugins.ExternalAuth.Xumm.Fields.ApiKey"] = "API Key",
@@ -85,7 +85,10 @@ public class XummExternalAuthenticationMethod : BasePlugin, IExternalAuthenticat
             ["Plugins.ExternalAuth.Xumm.Fields.ApiSecret.Required"] = "API Secret is required",
             ["Plugins.ExternalAuth.Xumm.Fields.ApiSecret.Invalid"] = "API Secret format is invalid",
             ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris"] = "Redirect URI's",
-            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris.Hint"] = "Update the redirect URI's with URI's at the 'Application details' section of 'Settings' in the Xumm Developer Dashboard.",
+            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris.Hint"] = "Redirect URI's to be configured at the Xumm Developer Console to enable Xumm authentication.",
+            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris.StoreName"] = "Store",
+            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris.RedirectUri"] = "Redirect URI",
+            ["Plugins.ExternalAuth.Xumm.Fields.RedirectUris.Configured"] = "Configured",
             ["Plugins.ExternalAuth.Xumm.PublicInfo.SignInWithXumm"] = "Sign In with Xumm"
         });
 

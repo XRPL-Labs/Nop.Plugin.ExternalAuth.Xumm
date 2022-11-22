@@ -27,13 +27,11 @@ public record ConfigurationModel : BaseNopModel
     /// Gets or sets a Redirect URL
     /// </summary>
     [NopResourceDisplayName("Plugins.ExternalAuth.Xumm.Fields.RedirectUris")]
-    public Dictionary<string, bool> RedirectUris { get; set; } = new();
+    public List<StoreRedirectUriModel> RedirectUris { get; set; } = new();
 
     public bool ValidApiCredentials { get; set; }
 
     public bool ApiCredentialsProvided => !string.IsNullOrWhiteSpace(ApiKey) && !string.IsNullOrWhiteSpace(ApiSecret);
-
-    public bool HasRedirectUrlConfigured { get; set; }
 
     #endregion
 }
