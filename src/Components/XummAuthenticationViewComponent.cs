@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Nop.Core;
 using Nop.Plugin.ExternalAuth.Xumm.Models;
 using Nop.Plugin.ExternalAuth.Xumm.Services;
 using Nop.Web.Framework.Components;
-using System.Threading.Tasks;
 
 namespace Nop.Plugin.ExternalAuth.Xumm.Components;
 
@@ -14,14 +15,18 @@ public class XummAuthenticationViewComponent : NopViewComponent
 {
     #region Fields
 
+    private readonly IStoreContext _storeContext;
     private readonly IXummService _xummService;
 
     #endregion
 
     #region Ctor
 
-    public XummAuthenticationViewComponent(IXummService xummService)
+    public XummAuthenticationViewComponent(
+        IStoreContext storeContext,
+        IXummService xummService)
     {
+        _storeContext = storeContext;
         _xummService = xummService;
     }
 
@@ -35,11 +40,12 @@ public class XummAuthenticationViewComponent : NopViewComponent
     /// <returns>View component result</returns>
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var pong = await _xummService.GetPongAsync();
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var pong = await _xummService.GetPongAsync(store.Id);
 
         var model = new PublicInfoModel
         {
-            IsConfigured = _xummService.HasRedirectUrlConfigured(pong)
+            IsConfigured = await _xummService.HasRedirectUrlConfiguredAsync(store.Id, pong)
         };
 
         return View("~/Plugins/ExternalAuth.Xumm/Views/PublicInfo.cshtml", model);

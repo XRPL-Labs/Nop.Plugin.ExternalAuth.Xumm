@@ -1,10 +1,10 @@
-﻿using AspNet.Security.OAuth.Xumm;
+﻿using System.Threading.Tasks;
+using AspNet.Security.OAuth.Xumm;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
 using Nop.Services.Authentication.External;
-using System.Threading.Tasks;
 
 namespace Nop.Plugin.ExternalAuth.Xumm.Infrastructure;
 

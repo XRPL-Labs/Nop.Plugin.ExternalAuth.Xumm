@@ -1,17 +1,16 @@
-﻿using AspNet.Security.OAuth.Xumm;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Nop.Core;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using XUMM.NET.SDK.Clients;
-using XUMM.NET.SDK.Configs;
+using AspNet.Security.OAuth.Xumm;
+using Nop.Core.Domain.Stores;
+using Nop.Plugin.ExternalAuth.Xumm.Models;
+using Nop.Services.Configuration;
+using Nop.Services.Logging;
+using Nop.Services.Stores;
+using XUMM.NET.SDK;
 using XUMM.NET.SDK.Extensions;
 using XUMM.NET.SDK.Models.Misc;
-using ILogger = Nop.Services.Logging.ILogger;
 
 namespace Nop.Plugin.ExternalAuth.Xumm.Services;
 
@@ -19,9 +18,8 @@ public class XummService : IXummService
 {
     #region Fields
 
-    private readonly IServiceCollection _serviceCollection;
-    private readonly IWebHelper _webHelper;
-    private readonly XummExternalAuthenticationSettings _xummExternalAuthSettings;
+    private readonly ISettingService _settingService;
+    private readonly IStoreService _storeService;
     private readonly ILogger _logger;
 
     #endregion
@@ -29,14 +27,12 @@ public class XummService : IXummService
     #region Ctor
 
     public XummService(
-        IServiceCollection serviceCollection,
-        IWebHelper webHelper,
-        XummExternalAuthenticationSettings xummExternalAuthSettings,
+        ISettingService settingService,
+        IStoreService storeService,
         ILogger logger)
     {
-        _serviceCollection = serviceCollection;
-        _webHelper = webHelper;
-        _xummExternalAuthSettings = xummExternalAuthSettings;
+        _settingService = settingService;
+        _storeService = storeService;
         _logger = logger;
     }
 
@@ -44,50 +40,74 @@ public class XummService : IXummService
 
     #region Methods
 
-    public async Task<XummPong> GetPongAsync()
+    public async Task<XummSdk> GetXummSdk(int storeId)
+    {
+        var settings = await _settingService.LoadSettingAsync<XummExternalAuthenticationSettings>(storeId);
+        if (!settings.ApiKey.IsValidUuid() || !settings.ApiSecret.IsValidUuid())
+        {
+            throw new InvalidOperationException($"Missing API Key and/or Secret to create an instance of {nameof(XummSdk)}");
+        }
+
+        return new XummSdk(settings.ApiKey, settings.ApiSecret);
+    }
+
+    public async Task<XummPong> GetPongAsync(int storeId = 0)
     {
         try
         {
-            var xummMiscClient = GetMiscClient();
-            return await xummMiscClient.GetPingAsync();
+            return await (await GetXummSdk(storeId)).Miscellaneous.GetPingAsync();
         }
         catch (Exception ex)
         {
-            await _logger.ErrorAsync("Failed to retrieve Xumm pong with provided credentials.", ex);
+            await _logger.ErrorAsync($"Failed to retrieve Xumm pong with provided credentials for store: {storeId}.", ex);
             return null;
         }
     }
 
-    public bool HasRedirectUrlConfigured(XummPong pong)
+    public async Task<bool> HasRedirectUrlConfiguredAsync(int storeId, XummPong pong)
     {
-        return pong?.Auth.Application.RedirectUris.Any(s => s.Equals(RedirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false;
+        var redirectUrl = await GetRedirectUrlAsync(storeId);
+        return pong?.Auth.Application.RedirectUris.Any(s => s.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false;
     }
 
-    private XummMiscClient GetMiscClient()
+    public async Task<List<StoreRedirectUriModel>> GetStoreRedirectUrisAsync(XummPong pong)
     {
-        var serviceProvider = _serviceCollection.BuildServiceProvider();
-
-        var apiConfig = new ApiConfig();
-        if (_xummExternalAuthSettings.ApiKey.IsValidUuid())
+        var result = new List<StoreRedirectUriModel>();
+        var stores = await _storeService.GetAllStoresAsync();
+        foreach (var store in stores)
         {
-            apiConfig.ApiKey = _xummExternalAuthSettings.ApiKey;
+            var redirectUrl = GetStoreRedirectUrl(store);
+            var model = new StoreRedirectUriModel
+            {
+                StoreName = store.Name,
+                RedirectUri = redirectUrl,
+                Configured = pong?.Auth.Application.RedirectUris.Any(s => s.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase)) ?? false
+            };
+
+            result.Add(model);
         }
 
-        if (_xummExternalAuthSettings.ApiSecret.IsValidUuid())
-        {
-            apiConfig.ApiSecret = _xummExternalAuthSettings.ApiSecret;
-        }
-
-        // It's possible that the 'Payments.Xumm` plugin is also installed so we have to make sure that we use the credentials configured in this plugin.
-        var xummHttpClient = new XummHttpClient(serviceProvider.GetRequiredService<IHttpClientFactory>(), Options.Create(apiConfig), serviceProvider.GetRequiredService<ILogger<XummHttpClient>>());
-        return new XummMiscClient(xummHttpClient);
+        return result;
     }
 
-    #endregion
+    public async Task<string> GetRedirectUrlAsync(int storeId)
+    {
+        var store = storeId > 0
+            ? await _storeService.GetStoreByIdAsync(storeId)
+            : (await _storeService.GetAllStoresAsync()).FirstOrDefault();
 
-    #region Properties
+        return GetStoreRedirectUrl(store);
+    }
 
-    public string RedirectUrl => $"{_webHelper.GetStoreLocation()}{XummAuthenticationDefaults.CallbackPath.TrimStart('/')}";
+    private string GetStoreRedirectUrl(Store store)
+    {
+        var storeLocation = store?.Url ?? throw new Exception($"Store {store?.Id} has no URL configured");
+
+        //ensure that URL is ended with slash
+        storeLocation = $"{storeLocation.TrimEnd('/')}/";
+
+        return $"{storeLocation}{XummAuthenticationDefaults.CallbackPath.TrimStart('/')}";
+    }
 
     #endregion
 }
