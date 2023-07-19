@@ -58,7 +58,7 @@
 
   <ItemGroup>
 	  <PackageReference Include="AspNet.Security.OAuth.Xumm" Version="6.0.11" />
-	  <PackageReference Include="XUMM.NET.SDK" Version="1.7.1" />
+	  <PackageReference Include="XUMM.NET.SDK" Version="1.9.0" />
   </ItemGroup>
 
   <!-- This target execute after "Build" target -->
