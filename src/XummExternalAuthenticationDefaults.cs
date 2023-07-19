@@ -6,11 +6,6 @@
 public class XummExternalAuthenticationDefaults
 {
     /// <summary>
-    /// Gets a name of the view component to display login button
-    /// </summary>
-    public const string VIEW_COMPONENT_NAME = "XummAuthentication";
-
-    /// <summary>
     /// Gets a plugin system name
     /// </summary>
     public static string SystemName = "ExternalAuth.Xumm";

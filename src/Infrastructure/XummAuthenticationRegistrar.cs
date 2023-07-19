@@ -21,14 +21,18 @@ public class XummAuthenticationRegistrar : IExternalAuthenticationRegistrar
     {
         builder.AddXumm(XummAuthenticationDefaults.AuthenticationScheme, options =>
         {
+            //set credentials
             var settings = EngineContext.Current.Resolve<XummExternalAuthenticationSettings>();
-            options.ClientId = settings.ApiKey;
-            options.ClientSecret = settings.ApiSecret;
+            options.ClientId = string.IsNullOrEmpty(settings?.ApiKey) ? nameof(options.ClientId) : settings.ApiKey;
+            options.ClientSecret = string.IsNullOrEmpty(settings?.ApiSecret) ? nameof(options.ClientSecret) : settings.ApiSecret;
 
+            //store access and refresh tokens for the further usage
             options.SaveTokens = true;
 
+            //set custom events handlers
             options.Events = new OAuthEvents
             {
+                //in case of error, redirect the user to the specified URL
                 OnRemoteFailure = context =>
                 {
                     context.HandleResponse();

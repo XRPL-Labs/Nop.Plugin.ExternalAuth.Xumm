@@ -10,7 +10,6 @@ namespace Nop.Plugin.ExternalAuth.Xumm.Components;
 /// <summary>
 /// Represents view component to display login button
 /// </summary>
-[ViewComponent(Name = XummExternalAuthenticationDefaults.VIEW_COMPONENT_NAME)]
 public class XummAuthenticationViewComponent : NopViewComponent
 {
     #region Fields

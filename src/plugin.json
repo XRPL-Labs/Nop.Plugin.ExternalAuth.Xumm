@@ -3,7 +3,7 @@
   "FriendlyName": "Xumm authentication",
   "SystemName": "ExternalAuth.Xumm",
   "Version": "1.3",
-  "SupportedVersions": [ "4.50" ],
+  "SupportedVersions": [ "4.60" ],
   "Author": "Dominique Blomsma",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.ExternalAuth.Xumm.dll",
